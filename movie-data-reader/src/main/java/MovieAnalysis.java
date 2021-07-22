@@ -73,13 +73,14 @@ public class MovieAnalysis {
             return;
         }
 
-        String actorWhoDoneMostAction = list.stream()
+        Optional<Map.Entry<String, Long>> maxActionMap = list.stream()
                 .filter(movie -> movie.genre.contains("Action"))
                 .collect(Collectors.groupingBy(Movie::getActorName, Collectors.counting()))
                 .entrySet()
                 .stream()
-                .max(Comparator.comparing(Map.Entry::getValue))
-                .get().getKey();
+                .max(Comparator.comparing(Map.Entry::getValue));
+
+        String actorWhoDoneMostAction = maxActionMap != null && maxActionMap.isPresent() ? maxActionMap.get().getKey() : "Not Found";
 
         System.out.print("Which actor / actress has done the most number of Action movies? => ");
         System.out.println(bold(actorWhoDoneMostAction));
@@ -95,6 +96,7 @@ public class MovieAnalysis {
         System.out.println("What is the total revenue of movies directed by \"Barry Sonnenfeld\"");
         System.out.print("that were released after the year 2000 and had the actor Will Smith in it? => " );
         System.out.println(bold(String.valueOf(totalRevenue)));
+
     }
 
     static final String SET_PLAIN_TEXT = "\033[0;0m";
@@ -104,4 +106,4 @@ public class MovieAnalysis {
     }
 }
 
-//execution time -440 ms
+//execution time=> 440 ms
