@@ -165,27 +165,50 @@ class B2CustomerOrder2 implements INormalOrder {
     }
 }
 
-interface IParent {
-    String getName();
-}
+// Dependency Inversion
+class Insurance {
+    private DBRepository dbRepository;
 
-class Child implements IParent {
-    public String getName(){
-        return "Child";
+    public Insurance(DBRepository dbRepository){
+        this.dbRepository = dbRepository;
+    }
+
+    public void save(){
+        this.dbRepository.save();
     }
 }
 
-class Child2 implements IParent {
-    public String getName(){
-        return "Child2";
+class DBRepository {
+    public void save() {
+        // some code
     }
 }
 
-class RelationManager {
-    public String getNameManager(IParent parent){
-        return parent.getName();
+// above code is coupled. we need to decouple it by introducting abstraction (interface)
+
+interface IRepository {
+    String save();
+}
+
+class MongoDBRepository implements IRepository {
+    @Override
+    public String save() {
+        return "Saved";
     }
 }
+
+class AddInsurance {
+    private IRepository iRepository;
+
+    public AddInsurance(IRepository iRepository){
+        this.iRepository = iRepository;
+    }
+
+    public String save() {
+       return this.iRepository.save();
+    }
+}
+
 
 public class solid {
     public static void main(String[] arg){
@@ -197,6 +220,7 @@ public class solid {
         System.out.println("------------------------");
         System.out.println("Open/Close");
         OpenClose openClose= new OpenClose();
+        // open to extension via other classes, but closed for modification
         openClose.calculate(new AdditionClose(2,3));
         openClose.calculate(new SubtractionClose(3,2));
 
@@ -225,14 +249,16 @@ public class solid {
         System.out.println(b2BusinessOrder2.getMultipleDiscount());
         System.out.println(b2BusinessOrder2.getSingleDiscount());
 
+        // segragated the interface
         B2CustomerOrder2 b2CustomerOrder2 = new B2CustomerOrder2();
-        System.out.println( b2CustomerOrder2.getSingleDiscount());
+        System.out.println(b2CustomerOrder2.getSingleDiscount());
 
         System.out.println("------------------------");
-        RelationManager relationManager = new RelationManager();
-        System.out.println(relationManager.getNameManager(new Child()));
-        System.out.println(relationManager.getNameManager(new Child2()));
+        System.out.println("Dependency Inversion");
+
+        // we can pass any repository/any data access layer.
+        // it would be easier to test
+        AddInsurance addInsurance = new AddInsurance(new MongoDBRepository());
+        System.out.println(addInsurance.save());
     }
-
-
 }
