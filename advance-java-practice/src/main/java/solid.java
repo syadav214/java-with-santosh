@@ -65,7 +65,7 @@ interface ILiskovTwo {
     int getHeight(int a);
 }
 
-interface LiskovMain extends ILiskovOne, ILiskovTwo {
+interface ILiskovMain extends ILiskovOne, ILiskovTwo {
     @Override
     public int getAge(int a);
 
@@ -74,7 +74,7 @@ interface LiskovMain extends ILiskovOne, ILiskovTwo {
 }
 
 // constructor need to be same
-class Liskov1 implements LiskovMain {
+class Liskov1 implements ILiskovMain {
     String name;
     public Liskov1(String name) {
         this.name = name;
@@ -105,6 +105,65 @@ class Liskov2 implements ILiskovTwo {
     }
 }
 
+// Interface Segregation
+interface IOrder {
+    int getSingleDiscount();
+    int getMultipleDiscount()  throws Exception;
+}
+
+class B2BusinessOrder implements IOrder {
+
+    @Override
+    public int getSingleDiscount() {
+        return 10;
+    }
+
+    @Override
+    public int getMultipleDiscount() {
+        return 100;
+    }
+}
+
+class B2CustomerOrder implements IOrder {
+    @Override
+    public int getMultipleDiscount() throws Exception {
+        throw new Exception("Not Eligible");
+    }
+
+    @Override
+    public int getSingleDiscount() {
+        return 0;
+    }
+}
+
+// segragating interface. B2CustomerOrder does not need getSingleDiscount so we can create separate interface
+// keeping this principle, we can avoid Exception in getMultipleDiscount
+interface INormalOrder {
+    int getSingleDiscount();
+}
+
+interface IB2BOrder {
+    int getMultipleDiscount();
+}
+
+class B2BusinessOrder2 implements INormalOrder, IB2BOrder {
+    @Override
+    public int getSingleDiscount() {
+        return 10;
+    }
+
+    @Override
+    public int getMultipleDiscount() {
+        return 100;
+    }
+}
+
+class B2CustomerOrder2 implements INormalOrder {
+    @Override
+    public int getSingleDiscount() {
+        return 10;
+    }
+}
 
 interface IParent {
     String getName();
@@ -144,14 +203,14 @@ public class solid {
         System.out.println("------------------------");
         System.out.println("Liskov Substitution");
 
-        List<LiskovMain> liskovMainList = new ArrayList<>();
+        List<ILiskovMain> liskovMainList = new ArrayList<>();
         liskovMainList.add(new Liskov1("liskov1"));
-        for(LiskovMain liskovMain: liskovMainList){
+        for(ILiskovMain liskovMain: liskovMainList){
             System.out.println(liskovMain.getAge(1));
             System.out.println(liskovMain.getHeight(2));
         }
 
-        // here we are using Liskov1 (Because it can be substitute from LiskovMain (main) to ILiskovTwo (subtype))
+        // here we are using Liskov1 (Because it can substitute from ILiskovMain (main) to ILiskovTwo (subtype))
         List<ILiskovTwo> liskovTwoMainList = new ArrayList<>();
         liskovTwoMainList.add(new Liskov1("liskov1"));
         liskovTwoMainList.add(new Liskov2("liskov2"));
@@ -160,7 +219,16 @@ public class solid {
         }
 
         System.out.println("------------------------");
+        System.out.println("Interface Segregation");
 
+        B2BusinessOrder2 b2BusinessOrder2 = new B2BusinessOrder2();
+        System.out.println(b2BusinessOrder2.getMultipleDiscount());
+        System.out.println(b2BusinessOrder2.getSingleDiscount());
+
+        B2CustomerOrder2 b2CustomerOrder2 = new B2CustomerOrder2();
+        System.out.println( b2CustomerOrder2.getSingleDiscount());
+
+        System.out.println("------------------------");
         RelationManager relationManager = new RelationManager();
         System.out.println(relationManager.getNameManager(new Child()));
         System.out.println(relationManager.getNameManager(new Child2()));
