@@ -2,7 +2,7 @@ import java.util.*;
 
 public class run {
     public static void main(String[] arg){
-       System.out.println(uniqueCharacters("santosh"));
+       System.out.println(uniqueCharacters("adfg"));
     }
 
     static boolean uniqueCharacters(String str)
